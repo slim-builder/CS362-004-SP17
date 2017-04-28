@@ -48,7 +48,9 @@ int main() {
     }
 
     int s;
+#if (NOISY_TEST == 1)
     char cardname[256];
+#endif
     printf ("TESTING buyCard():\n");
 
     for (p = 0; p < numPlayer; p++)

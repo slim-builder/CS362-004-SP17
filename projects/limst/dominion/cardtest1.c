@@ -78,6 +78,9 @@ int main() {
                 G.deckCount[p] = deckCount;
                 memcpy(G.deck[p], golds, sizeof(int) * deckCount);
 
+                G.playedCardCount = 0;
+                G.playedCards[0] = copper;
+
                 r = playSmithy(handPos, p, &G); // Call function under test
 #if (NOISY_TEST == 1)
                 printf("playSmithy return value = %d, expected = %d\n", r, 0);
@@ -192,6 +195,14 @@ int main() {
                     if (r != p)
                         asserttrue(G.discardCount[r] == 0, &globalFailFlag); // check if all other players' decks are empty
                 }
+#if (NOISY_TEST == 1)
+                        printf("G.playedCardCount = %d, expected = %d\n", G.playedCardCount, 1);
+#endif
+                        asserttrue(G.playedCardCount == 1, &globalFailFlag); // check if discard count is one
+#if (NOISY_TEST == 1)
+                        printf("G.playedCards[0] = %d, expected = %d\n", G.playedCards[0], smithy);
+#endif
+                        asserttrue(G.playedCards[0] == smithy, &globalFailFlag); // check if discard count is one
                 }
             }
         }

@@ -12,7 +12,7 @@
 #include "interface.h"
 
 // set NOISY_TEST to 0 to remove printfs from output
-#define NOISY_TEST 1
+#define NOISY_TEST 0
 #define SUPPRESS_SUCCESS 1
 void asserttrue(int test, int *globalFailFlag) {
     if (test == 0) { // test failed
@@ -59,7 +59,7 @@ int main() {
                 for (handPos = 0; handPos < handCount; handPos++)
                 {
 #if (NOISY_TEST == 1)
-                printf("Test player %d playing a Council Room card.\n", p);
+                printf("Test player %d playing a Council Room card with deck = %d and discard = %d.\n", p, deckCount, discardCount);
 #endif
                 memset(&G, 23, sizeof(struct gameState));   // clear the game state
                 r = initializeGame(numPlayer, k, seed, &G); // initialize a new game
@@ -73,11 +73,14 @@ int main() {
                     G.supplyCount[s] = 0;
                 G.handCount[p] = handCount;
                 memcpy(G.hand[p], coppers, sizeof(int) * handCount);
-                G.hand[p][handPos] = smithy;
+                G.hand[p][handPos] = council_room;
                 G.discardCount[p] = discardCount;
                 memcpy(G.discard[p], silvers, sizeof(int) * discardCount);
                 G.deckCount[p] = deckCount;
                 memcpy(G.deck[p], golds, sizeof(int) * deckCount);
+
+                G.playedCardCount = 0;
+                G.playedCards[0] = copper;
 
                 G.numBuys = 1;
 
@@ -188,12 +191,6 @@ int main() {
                         asserttrue(G.handCount[r] == 1, &globalFailFlag); // check if all other players' hands are empty
 #if (NOISY_TEST == 1)
                     if (r != p)
-                        printf("G.hand[r][0] = %d, expected = %d\n", G.hand[r][0], estate);
-#endif
-                    if (r != p)
-                        asserttrue(G.hand[r][0] == estate, &globalFailFlag); // check if all other players' hands are empty
-#if (NOISY_TEST == 1)
-                    if (r != p)
                         printf("G.deckCount[r] = %d, expected = %d\n", G.deckCount[r], 0);
 #endif
                     if (r != p)
@@ -205,6 +202,14 @@ int main() {
                     if (r != p)
                         asserttrue(G.discardCount[r] == 0, &globalFailFlag); // check if all other players' decks are empty
                 }
+#if (NOISY_TEST == 1)
+                        printf("G.playedCardCount = %d, expected = %d\n", G.playedCardCount, 1);
+#endif
+                        //asserttrue(G.playedCardCount == 1, &globalFailFlag); // check if discard count is one
+#if (NOISY_TEST == 1)
+                        printf("G.playedCards[0] = %d, expected = %d\n", G.playedCards[0], council_room);
+#endif
+                        //asserttrue(G.playedCards[0] == council_room, &globalFailFlag); // check if discard count is one
                 }
             }
         }

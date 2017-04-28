@@ -12,7 +12,7 @@
 #include "interface.h"
 
 // set NOISY_TEST to 0 to remove printfs from output
-#define NOISY_TEST 1
+#define NOISY_TEST 0
 #define SUPPRESS_SUCCESS 1
 void asserttrue(int test, int *globalFailFlag) {
     if (test == 0) { // test failed
@@ -82,6 +82,9 @@ int main() {
                 G.discardCount[p] = 0;
                 G.deckCount[p] = 0;
 
+                G.playedCardCount = 0;
+                G.playedCards[0] = copper;
+
                 r = playSeaHag(handPos, p, &G); // Call function under test
 #if (NOISY_TEST == 1)
                 printf("playSeaHag return value = %d, expected = %d\n", r, 0);
@@ -141,6 +144,15 @@ int main() {
                     if (r == p)
                         asserttrue(G.deckCount[r] == 0, &globalFailFlag); // check if all other players' hands are empty
                 }
+#if (NOISY_TEST == 1)
+                        printf("G.playedCardCount = %d, expected = %d\n", G.playedCardCount, 1);
+#endif
+                        asserttrue(G.playedCardCount == 1, &globalFailFlag); // check if discard count is one
+#if (NOISY_TEST == 1)
+                        printf("G.playedCards[0] = %d, expected = %d\n", G.playedCards[0], sea_hag);
+#endif
+                        asserttrue(G.playedCards[0] == sea_hag, &globalFailFlag); // check if discard count is one
+
                 }
             }
         }
