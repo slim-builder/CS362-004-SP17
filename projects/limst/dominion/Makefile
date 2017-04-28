@@ -35,5 +35,14 @@ player: player.c interface.o
 
 all: playdom
 
+unittest: dominion.o rngs.o interface.o 
+	gcc -o unittest1 unittest1.c -g dominion.o rngs.o interface.o $(CFLAGS)
+	gcc -o unittest2 unittest2.c -g dominion.o rngs.o interface.o $(CFLAGS)
+	gcc -o unittest3 unittest3.c -g dominion.o rngs.o interface.o $(CFLAGS)
+	gcc -o unittest4 unittest4.c -g dominion.o rngs.o interface.o $(CFLAGS)
+
+cardtest: dominion.o rngs.o interface.o 
+	gcc -o cardtest1 cardtest1.c -g dominion.o rngs.o interface.o $(CFLAGS)
+
 clean:
-	rm -f *.o playdom.exe playdom test.exe test player player.exe testInit testInit.exe *.gcov *.gcda *.gcno *.so
+	rm -f *.o playdom.exe playdom test.exe test player player.exe testInit testInit.exe unittest1 unittest2 unittest3 unittest4 *.gcov *.gcda *.gcno *.so
