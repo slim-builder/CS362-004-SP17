@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------------
- * Unit test for playSmithy function in dominion.c
+ * Unit test for playCouncilRoom function in dominion.c
  * -----------------------------------------------------------------------
  */
 
@@ -12,7 +12,7 @@
 #include "interface.h"
 
 // set NOISY_TEST to 0 to remove printfs from output
-#define NOISY_TEST 0
+#define NOISY_TEST 1
 #define SUPPRESS_SUCCESS 1
 void asserttrue(int test, int *globalFailFlag) {
     if (test == 0) { // test failed
@@ -48,25 +48,26 @@ int main() {
     }
 
     int s;
-    printf ("TESTING playSmithy():\n");
+    printf ("TESTING playCouncilRoom():\n");
 
     for (p = 0; p < numPlayer; p++)
     {
-        for (deckCount = 0; deckCount <= 3; deckCount++)
+        for (deckCount = 0; deckCount <= 4; deckCount++)
         {
-            for (discardCount = 0; discardCount <= 3; discardCount++)
+            for (discardCount = 0; discardCount <= 4; discardCount++)
             {
                 for (handPos = 0; handPos < handCount; handPos++)
                 {
 #if (NOISY_TEST == 1)
-                printf("Test player %d playing a Smithy card.\n", p);
+                printf("Test player %d playing a Council Room card.\n", p);
 #endif
                 memset(&G, 23, sizeof(struct gameState));   // clear the game state
                 r = initializeGame(numPlayer, k, seed, &G); // initialize a new game
                 for (s = 0; s < numPlayer; s++) { // empty all hands, decks, and discard piles to maximum to check that the other player's states will not be changed
                     G.handCount[s] = 0;
                     G.discardCount[s] = 0;
-                    G.deckCount[s] = 0;
+                    G.deckCount[s] = 1;
+                    G.deck[s][0] = estate;
                 }
                 for (s = 0; s <= treasure_map; s++)
                     G.supplyCount[s] = 0;
@@ -78,40 +79,46 @@ int main() {
                 G.deckCount[p] = deckCount;
                 memcpy(G.deck[p], golds, sizeof(int) * deckCount);
 
-                r = playSmithy(handPos, p, &G); // Call function under test
+                G.numBuys = 1;
+
+                r = playCouncilRoom(handPos, p, &G); // Call function under test
 #if (NOISY_TEST == 1)
-                printf("playSmithy return value = %d, expected = %d\n", r, 0);
+                printf("playCouncilRoom return value = %d, expected = %d\n", r, 0);
 #endif
-                asserttrue(r == 0, &globalFailFlag); // check if playSmithy return value is correct
+                asserttrue(r == 0, &globalFailFlag); // check if playCouncilRoom return value is correct
+#if (NOISY_TEST == 1)
+                printf("G.numBuys = %d, expected = %d\n", G.numBuys, 2);
+#endif
+                asserttrue(G.numBuys == 2, &globalFailFlag); // check if playCouncilRoom return value is correct
                 for (s = 0; s < G.handCount[p]; s++) {
 #if (NOISY_TEST == 1)
-                    printf("G.hand[p][s] = %d, expected != %d\n", G.hand[p][s], smithy);
+                    printf("G.hand[p][s] = %d, expected != %d\n", G.hand[p][s], council_room);
 #endif
-                    asserttrue(G.hand[p][s] != smithy, &globalFailFlag);
+                    asserttrue(G.hand[p][s] != council_room, &globalFailFlag);
                 }
-                if (deckCount >= 3) {
+                if (deckCount >= 4) {
                     goldCardCount = 0;
-                    for (s = 0; s < handCount+2; s++) {
+                    for (s = 0; s < handCount+3; s++) {
                         if (G.hand[p][s] == gold)
                             goldCardCount++;
                     }
 #if (NOISY_TEST == 1)
-                    printf("goldCardCount = %d, expected = %d\n", goldCardCount, 3);
+                    printf("goldCardCount = %d, expected = %d\n", goldCardCount, 4);
 #endif
-                    asserttrue(goldCardCount == 3, &globalFailFlag); // check if the player's discard pile only has the bought card since the discard pile initially is empty
+                    asserttrue(goldCardCount == 4, &globalFailFlag); // check if the player's discard pile only has the bought card since the discard pile initially is empty
 #if (NOISY_TEST == 1)
-                    printf("G.handCount[p] = %d, expected = %d\n", G.handCount[p], handCount-1+3);
+                    printf("G.handCount[p] = %d, expected = %d\n", G.handCount[p], handCount-1+4);
 #endif
-                    asserttrue(G.handCount[p] == handCount-1+3, &globalFailFlag); // check if discard count is one
+                    asserttrue(G.handCount[p] == handCount-1+4, &globalFailFlag); // check if discard count is one
 #if (NOISY_TEST == 1)
-                    printf("G.deckCount[p] = %d, expected = %d\n", G.deckCount[p], deckCount-3);
+                    printf("G.deckCount[p] = %d, expected = %d\n", G.deckCount[p], deckCount-4);
 #endif
-                    asserttrue(G.deckCount[p] == deckCount-3, &globalFailFlag); // check if discard count is one
+                    asserttrue(G.deckCount[p] == deckCount-4, &globalFailFlag); // check if discard count is one
 #if (NOISY_TEST == 1)
                     printf("G.discardCount[p] = %d, expected = %d\n", G.discardCount[p], discardCount);
 #endif
                     asserttrue(G.discardCount[p] == discardCount, &globalFailFlag); // check if discard count is one
-                    for (s = 0; s < deckCount-3; s++) {
+                    for (s = 0; s < deckCount-4; s++) {
 #if (NOISY_TEST == 1)
                         printf("G.deck[p][s] = %d, expected = %d\n", G.deck[p][s], gold);
 #endif
@@ -124,10 +131,10 @@ int main() {
                         asserttrue(G.discard[p][s] == silver, &globalFailFlag); // check if discard count is one
                     }
                 }
-                else if (deckCount + discardCount >= 3) {
+                else if (deckCount + discardCount >= 4) {
                     goldCardCount = 0;
                     silverCardCount = 0;
-                    for (s = 0; s < handCount+2; s++) {
+                    for (s = 0; s < handCount+3; s++) {
                         if (G.hand[p][s] == gold)
                             goldCardCount++;
                         if (G.hand[p][s] == silver)
@@ -138,22 +145,22 @@ int main() {
 #endif
                     asserttrue(goldCardCount == deckCount, &globalFailFlag); // check if the player's discard pile only has the bought card since the discard pile initially is empty
 #if (NOISY_TEST == 1)
-                    printf("silverCardCount = %d, expected = %d\n", silverCardCount, 3 - deckCount);
+                    printf("silverCardCount = %d, expected = %d\n", silverCardCount, 4 - deckCount);
 #endif
-                    asserttrue(silverCardCount == 3 - deckCount, &globalFailFlag); // check if the player's discard pile only has the bought card since the discard pile initially is empty
+                    asserttrue(silverCardCount == 4 - deckCount, &globalFailFlag); // check if the player's discard pile only has the bought card since the discard pile initially is empty
 #if (NOISY_TEST == 1)
-                    printf("G.handCount[p] = %d, expected = %d\n", G.handCount[p], handCount-1+3);
+                    printf("G.handCount[p] = %d, expected = %d\n", G.handCount[p], handCount-1+4);
 #endif
-                    asserttrue(G.handCount[p] == handCount-1+3, &globalFailFlag); // check if discard count is one
+                    asserttrue(G.handCount[p] == handCount-1+4, &globalFailFlag); // check if discard count is one
 #if (NOISY_TEST == 1)
-                    printf("G.deckCount[p] = %d, expected = %d\n", G.deckCount[p], deckCount+discardCount-3);
+                    printf("G.deckCount[p] = %d, expected = %d\n", G.deckCount[p], deckCount+discardCount-4);
 #endif
-                    asserttrue(G.deckCount[p] == deckCount+discardCount-3, &globalFailFlag); // check if discard count is one
+                    asserttrue(G.deckCount[p] == deckCount+discardCount-4, &globalFailFlag); // check if discard count is one
 #if (NOISY_TEST == 1)
                     printf("G.discardCount[p] = %d, expected = %d\n", G.discardCount[p], 0);
 #endif
                     asserttrue(G.discardCount[p] == 0, &globalFailFlag); // check if discard count is one
-                    for (s = 0; s < deckCount+discardCount-3; s++) {
+                    for (s = 0; s < deckCount+discardCount-4; s++) {
 #if (NOISY_TEST == 1)
                         printf("G.deck[p][s] = %d, expected = %d\n", G.deck[p][s], silver);
 #endif
@@ -175,10 +182,16 @@ int main() {
                 for (r = 0; r < numPlayer; r++) {
 #if (NOISY_TEST == 1)
                     if (r != p)
-                        printf("G.handCount[r] = %d, expected = %d\n", G.handCount[r], 0);
+                        printf("G.handCount[r] = %d, expected = %d\n", G.handCount[r], 1);
 #endif
                     if (r != p)
-                        asserttrue(G.handCount[r] == 0, &globalFailFlag); // check if all other players' hands are empty
+                        asserttrue(G.handCount[r] == 1, &globalFailFlag); // check if all other players' hands are empty
+#if (NOISY_TEST == 1)
+                    if (r != p)
+                        printf("G.hand[r][0] = %d, expected = %d\n", G.hand[r][0], estate);
+#endif
+                    if (r != p)
+                        asserttrue(G.hand[r][0] == estate, &globalFailFlag); // check if all other players' hands are empty
 #if (NOISY_TEST == 1)
                     if (r != p)
                         printf("G.deckCount[r] = %d, expected = %d\n", G.deckCount[r], 0);
@@ -196,7 +209,7 @@ int main() {
             }
         }
     }
-    printf("******* playSmithy function CARD TEST #1 EXECUTION IS COMPLETE *******\n");
+    printf("******* playCouncilRoom function CARD TEST #3 EXECUTION IS COMPLETE *******\n");
     printf("RESULT: ");
     if (globalFailFlag == 0)
         printf("ALL TESTS PASSED\n");
