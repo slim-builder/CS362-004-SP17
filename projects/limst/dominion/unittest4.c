@@ -12,16 +12,16 @@
 #include "interface.h"
 
 // set NOISY_TEST to 0 to remove printfs from output
-#define NOISY_TEST 0
-#define SUPPRESS_SUCCESS 1
-void asserttrue(int test, int *globalFailFlag) {
+#define NOISY_TEST 1
+void asserttrue(int test, int *globalFailFlag, int verbose) {
     if (test == 0) { // test failed
-        printf("TEST FAILED\n");
+        printf("- TEST FAILED\n");
         *globalFailFlag = 1;
     }
     else { // test passed
-#if (SUPPRESS_SUCCESS == 0)
-        printf("TEST SUCCESSFULLY PASSED\n");
+#if (NOISY_TEST == 1)
+        if (verbose)
+            printf("- TEST SUCCESSFULLY PASSED\n");
 #endif
     }
 }
@@ -53,11 +53,11 @@ int main() {
 #endif
     printf ("TESTING gainCard():\n");
 
-    for (p = 0; p < numPlayer; p++)
+    for (p = 0; p < numPlayer; p++) // test for each player
     {
-        for (supplyPos = 0; supplyPos <= treasure_map; supplyPos++)
+        for (supplyPos = 0; supplyPos <= treasure_map; supplyPos++) // test for each card type
         {
-            for (toFlag = 0; toFlag <= 2; toFlag++)
+            for (toFlag = 0; toFlag <= 2; toFlag++) // test for each destination pile (hand, deck, discard)
             {
 #if (NOISY_TEST == 1)
                 cardNumToName(supplyPos, cardname);
@@ -76,10 +76,10 @@ int main() {
 
                 r = gainCard(supplyPos, &G, toFlag, p); // Call function under test
 #if (NOISY_TEST == 1)
-                printf("gainCard return value = %d, expected = %d\n", r, -1);
+                printf("gainCard return value = %d, expected = %d ", r, -1);
 #endif
-                asserttrue(r == -1, &globalFailFlag); // check if gainCard return value is correct when supply count of card is zero
-                for (s = 0; s < numPlayer; s++) { // empty all hands, decks, and discard piles to maximum to check that the other player's states will not be changed
+                asserttrue(r == -1, &globalFailFlag, 1); // check if gainCard return value is correct when supply count of card is zero
+                for (s = 0; s < numPlayer; s++) { // empty all hands, decks, and discard piles to check that the other player's states will not be changed
                     G.handCount[s] = 0;
                     G.discardCount[s] = 0;
                     G.deckCount[s] = 0;
@@ -88,64 +88,64 @@ int main() {
 
                 r = gainCard(supplyPos, &G, toFlag, p); // Call function under test
 #if (NOISY_TEST == 1)
-                printf("gainCard return value = %d, expected = %d\n", r, 0);
+                printf("gainCard return value = %d, expected = %d ", r, 0);
 #endif
-                asserttrue(r == 0, &globalFailFlag); // check if gainCard return value is correct when coins is zero
+                asserttrue(r == 0, &globalFailFlag, 1); // check if gainCard return value is correct
                 if (toFlag == 2) {
 #if (NOISY_TEST == 1)
-                    printf("G.hand[p][0] = %d, expected = %d\n", G.hand[p][0], supplyPos);
+                    printf("G.hand[p][0] = %d, expected = %d ", G.hand[p][0], supplyPos);
 #endif
-                    asserttrue(G.hand[p][0] == supplyPos, &globalFailFlag); // check if the player's discard pile only has the bought card since the discard pile initially is empty
+                    asserttrue(G.hand[p][0] == supplyPos, &globalFailFlag, 1); // check if the player's hand contains the gained card
 #if (NOISY_TEST == 1)
-                    printf("G.handCount[p] = %d, expected = %d\n", G.handCount[p], 1);
+                    printf("G.handCount[p] = %d, expected = %d ", G.handCount[p], 1);
 #endif
-                    asserttrue(G.handCount[p] == 1, &globalFailFlag); // check if discard count is one
+                    asserttrue(G.handCount[p] == 1, &globalFailFlag, 1); // check if hand count is correct
                 }
                 else if (toFlag == 1) {
 #if (NOISY_TEST == 1)
-                    printf("G.deck[p][0] = %d, expected = %d\n", G.deck[p][0], supplyPos);
+                    printf("G.deck[p][0] = %d, expected = %d ", G.deck[p][0], supplyPos);
 #endif
-                    asserttrue(G.deck[p][0] == supplyPos, &globalFailFlag); // check if the player's discard pile only has the bought card since the discard pile initially is empty
+                    asserttrue(G.deck[p][0] == supplyPos, &globalFailFlag, 1); // check if the player's deck contains the gained card
 #if (NOISY_TEST == 1)
-                    printf("G.deckCount[p] = %d, expected = %d\n", G.deckCount[p], 1);
+                    printf("G.deckCount[p] = %d, expected = %d ", G.deckCount[p], 1);
 #endif
-                    asserttrue(G.deckCount[p] == 1, &globalFailFlag); // check if discard count is one
+                    asserttrue(G.deckCount[p] == 1, &globalFailFlag, 1); // check if hand count is correct
                 }
                 else {
 #if (NOISY_TEST == 1)
-                    printf("G.discard[p][0] = %d, expected = %d\n", G.discard[p][0], supplyPos);
+                    printf("G.discard[p][0] = %d, expected = %d ", G.discard[p][0], supplyPos);
 #endif
-                    asserttrue(G.discard[p][0] == supplyPos, &globalFailFlag); // check if the player's discard pile only has the bought card since the discard pile initially is empty
+                    asserttrue(G.discard[p][0] == supplyPos, &globalFailFlag, 1); // check if the player's discard contains the gained card
 #if (NOISY_TEST == 1)
-                    printf("G.discardCount[p] = %d, expected = %d\n", G.discardCount[p], 1);
+                    printf("G.discardCount[p] = %d, expected = %d ", G.discardCount[p], 1);
 #endif
-                    asserttrue(G.discardCount[p] == 1, &globalFailFlag); // check if discard count is one
+                    asserttrue(G.discardCount[p] == 1, &globalFailFlag, 1); // check if discard count is one
                 }
                 for (r = 0; r <= treasure_map; r++) {
 #if (NOISY_TEST == 1)
-                    printf("G.supplyCount[r] = %d, expected = %d\n", G.supplyCount[r], 0);
+                    printf("G.supplyCount[r] = %d, expected = %d ", G.supplyCount[r], 0);
 #endif
-                    asserttrue(G.supplyCount[r] == 0, &globalFailFlag); // check if discard count is one
+                    asserttrue(G.supplyCount[r] == 0, &globalFailFlag, 1); // check if supply count of gained card is correct
                 }
                 for (r = 0; r < numPlayer; r++) {
 #if (NOISY_TEST == 1)
                     if (r != p)
-                        printf("G.handCount[r] = %d, expected = %d\n", G.handCount[r], 0);
+                        printf("G.handCount[r] = %d, expected = %d ", G.handCount[r], 0);
 #endif
                     if (r != p)
-                        asserttrue(G.handCount[r] == 0, &globalFailFlag); // check if all other players' hands are empty
+                        asserttrue(G.handCount[r] == 0, &globalFailFlag, 1); // check if all other players' hands are empty
 #if (NOISY_TEST == 1)
                     if (r != p)
-                        printf("G.deckCount[r] = %d, expected = %d\n", G.deckCount[r], 0);
+                        printf("G.deckCount[r] = %d, expected = %d ", G.deckCount[r], 0);
 #endif
                     if (r != p)
-                        asserttrue(G.deckCount[r] == 0, &globalFailFlag); // check if all other players' decks are empty
+                        asserttrue(G.deckCount[r] == 0, &globalFailFlag, 1); // check if all other players' decks are empty
 #if (NOISY_TEST == 1)
                     if (r != p)
-                        printf("G.discardCount[r] = %d, expected = %d\n", G.discardCount[r], 0);
+                        printf("G.discardCount[r] = %d, expected = %d ", G.discardCount[r], 0);
 #endif
                     if (r != p)
-                        asserttrue(G.discardCount[r] == 0, &globalFailFlag); // check if all other players' decks are empty
+                        asserttrue(G.discardCount[r] == 0, &globalFailFlag, 1); // check if all other players' discards are empty
                 }
             }
         }

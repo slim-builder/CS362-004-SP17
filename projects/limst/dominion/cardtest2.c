@@ -12,16 +12,16 @@
 #include "interface.h"
 
 // set NOISY_TEST to 0 to remove printfs from output
-#define NOISY_TEST 0
-#define SUPPRESS_SUCCESS 1
-void asserttrue(int test, int *globalFailFlag) {
+#define NOISY_TEST 1
+void asserttrue(int test, int *globalFailFlag, int verbose) {
     if (test == 0) { // test failed
-        printf("TEST FAILED\n");
+        printf("- TEST FAILED\n");
         *globalFailFlag = 1;
     }
     else { // test passed
-#if (SUPPRESS_SUCCESS == 0)
-        printf("TEST SUCCESSFULLY PASSED\n");
+#if (NOISY_TEST == 1)
+        if (verbose)
+            printf("- TEST SUCCESSFULLY PASSED\n");
 #endif
     }
 }
@@ -52,19 +52,19 @@ int main() {
     int drawntreasure = 0, temphand[MAX_DECK], z = 0, cardDrawn = 0;
     printf ("TESTING playAdventurer():\n");
 
-    for (p = 0; p < numPlayer; p++)
+    for (p = 0; p < numPlayer; p++) // test for each player
     {
-        for (deckCount = 0; deckCount <= 10; deckCount++)
+        for (deckCount = 0; deckCount <= 10; deckCount++) // test for different deck counts
         {
-            for (discardCount = 0; discardCount <= 10; discardCount++)
+            for (discardCount = 0; discardCount <= 10; discardCount++) // test for different discard counts
             {
-                for (handPos = 0; handPos < handCount; handPos++)
+                for (handPos = 0; handPos < handCount; handPos++) // test adventurer in each hand position
                 {
-                  for (disTreas = copper; disTreas <= gold; disTreas++)
+                  for (disTreas = copper; disTreas <= gold; disTreas++) // test for each treasure type in discard pile 
                   {
-                    for (deckTreas = copper; deckTreas <= gold; deckTreas++)
+                    for (deckTreas = copper; deckTreas <= gold; deckTreas++) // test for each treasure type in deck pile
                     {
-                    if (deckCount + discardCount == 0)
+                    if (deckCount + discardCount == 0) // set number of treasures to be found depending on size of deck and discard
                         treasNum = 0;
                     else if (deckCount + discardCount == 1)
                         treasNum = 1;
@@ -77,21 +77,21 @@ int main() {
 #endif
                 memset(&G, 23, sizeof(struct gameState));   // clear the game state
                 r = initializeGame(numPlayer, k, seed, &G); // initialize a new game
-                for (s = 0; s < numPlayer; s++) { // empty all hands, decks, and discard piles to maximum to check that the other player's states will not be changed
+                for (s = 0; s < numPlayer; s++) { // empty all hands, decks, and discard piles to check that the other player's states will not be changed
                     G.handCount[s] = 0;
                     G.discardCount[s] = 0;
                     G.deckCount[s] = 0;
                 }
-                for (s = 0; s <= treasure_map; s++)
+                for (s = 0; s <= treasure_map; s++) // empty supply piles
                     G.supplyCount[s] = 0;
-                G.handCount[p] = handCount;
+                G.handCount[p] = handCount; // initialize player's hand, deck, and discard
                 memcpy(G.hand[p], estates, sizeof(int) * handCount);
                 G.hand[p][handPos] = adventurer;
                 G.discardCount[p] = discardCount;
                 memcpy(G.discard[p], duchies, sizeof(int) * discardCount);
                 G.deckCount[p] = deckCount;
                 memcpy(G.deck[p], provinces, sizeof(int) * deckCount);
-                if (discardCount > 0 && deckCount > 0) {
+                if (discardCount > 0 && deckCount > 0) { // initialize placement of the two or less treasures depending on size of deck and discard
                     G.discard[p][discardCount-1] = disTreas;
                     G.deck[p][deckCount-1] = deckTreas;
                 }
@@ -104,98 +104,98 @@ int main() {
                     G.deck[p][deckCount-1] = deckTreas;
                 }
 
-                G.playedCardCount = 0;
-                G.playedCards[0] = copper;
+                G.playedCardCount = 0; // set played card count to zero
+                G.playedCards[0] = copper; // temp placeholder
  
                 r = playAdventurer(handPos, p, &G, drawntreasure, temphand, z, cardDrawn); // Call function under test
 #if (NOISY_TEST == 1)
-                printf("playAdventurer return value = %d, expected = %d\n", r, 0);
+                printf("playAdventurer return value = %d, expected = %d ", r, 0);
 #endif
-                asserttrue(r == 0, &globalFailFlag); // check if playAdventurer return value is correct
+                asserttrue(r == 0, &globalFailFlag, 1); // check if playAdventurer return value is correct
                 disTreasCount = 0;
-                deckTreasCount = 0;
+                deckTreasCount = 0; // count number of two different treasure types in the player's hand
                 for (s = 0; s < G.handCount[p]; s++) {
                     if (G.hand[p][s] == disTreas)
                         disTreasCount++;
                     if (G.hand[p][s] == deckTreas)
                         deckTreasCount++;
 #if (NOISY_TEST == 1)
-                    printf("G.hand[p][s] = %d, expected != %d\n", G.hand[p][s], adventurer);
+                    printf("G.hand[p][s] = %d, expected != %d ", G.hand[p][s], adventurer);
 #endif
-                    asserttrue(G.hand[p][s] != adventurer, &globalFailFlag);
+                    asserttrue(G.hand[p][s] != adventurer, &globalFailFlag, 1); // check if adventurer card is removed from hand
                 }
 #if (NOISY_TEST == 1)
-                printf("disTreasCount + deckTreasCount = %d, expected = %d\n", disTreasCount + deckTreasCount, treasNum);
+                printf("disTreasCount + deckTreasCount = %d, expected = %d ", disTreasCount + deckTreasCount, treasNum);
 #endif
-                asserttrue(disTreasCount + deckTreasCount == treasNum, &globalFailFlag); // check if discard count is one
+                asserttrue(disTreasCount + deckTreasCount == treasNum, &globalFailFlag, 1); // check if total treasure count is correct
 #if (NOISY_TEST == 1)
-                printf("G.handCount[p] = %d, expected = %d\n", G.handCount[p], handCount-1+treasNum);
+                printf("G.handCount[p] = %d, expected = %d ", G.handCount[p], handCount-1+treasNum);
 #endif
-                asserttrue(G.handCount[p] == handCount-1+treasNum, &globalFailFlag); // check if discard count is one
-                if (discardCount == 0 && deckCount >= 2) {
+                asserttrue(G.handCount[p] == handCount-1+treasNum, &globalFailFlag, 1); // check if hand count is correct
+                if (discardCount == 0 && deckCount >= 2) { // multiple cases to test for correct discard count
 #if (NOISY_TEST == 1)
-                    printf("G.discardCount[p] = %d, expected = %d\n", G.discardCount[p], deckCount-2);
+                    printf("G.discardCount[p] = %d, expected = %d ", G.discardCount[p], deckCount-2); 
 #endif
-                    asserttrue(G.discardCount[p] == deckCount-2, &globalFailFlag); // check if discard count is one
+                    asserttrue(G.discardCount[p] == deckCount-2, &globalFailFlag, 1); // check if discard count is correct
                 }
                 else if (discardCount == 1 && deckCount >= 1) {
 #if (NOISY_TEST == 1)
-                    printf("G.discardCount[p] = %d, expected = %d\n", G.discardCount[p], deckCount-1);
+                    printf("G.discardCount[p] = %d, expected = %d ", G.discardCount[p], deckCount-1);
 #endif
-                    asserttrue(G.discardCount[p] == deckCount-1, &globalFailFlag); // check if discard count is one
+                    asserttrue(G.discardCount[p] == deckCount-1, &globalFailFlag, 1); // check if discard count is correct
                 }
                 else if (discardCount == 2 && deckCount == 0) {
 #if (NOISY_TEST == 1)
-                    printf("G.discardCount[p] = %d, expected = %d\n", G.discardCount[p], 0);
+                    printf("G.discardCount[p] = %d, expected = %d ", G.discardCount[p], 0);
 #endif
-                    asserttrue(G.discardCount[p] == 0, &globalFailFlag); // check if discard count is one
+                    asserttrue(G.discardCount[p] == 0, &globalFailFlag, 1); // check if discard count is correct
                 }
                 else if (discardCount == 0 && deckCount == 1) {
 #if (NOISY_TEST == 1)
-                    printf("G.discardCount[p] = %d, expected = %d\n", G.discardCount[p], 0);
+                    printf("G.discardCount[p] = %d, expected = %d ", G.discardCount[p], 0);
 #endif
-                    asserttrue(G.discardCount[p] == 0, &globalFailFlag); // check if discard count is one
+                    asserttrue(G.discardCount[p] == 0, &globalFailFlag, 1); // check if discard count is correct
                 }
                 else if (discardCount == 1 && deckCount == 0) {
 #if (NOISY_TEST == 1)
-                    printf("G.discardCount[p] = %d, expected = %d\n", G.discardCount[p], 0);
+                    printf("G.discardCount[p] = %d, expected = %d ", G.discardCount[p], 0);
 #endif
-                    asserttrue(G.discardCount[p] == 0, &globalFailFlag); // check if discard count is one
+                    asserttrue(G.discardCount[p] == 0, &globalFailFlag, 1); // check if discard count is correct
                 }
                 for (r = 0; r <= treasure_map; r++) {
 #if (NOISY_TEST == 1)
-                    printf("G.supplyCount[r] = %d, expected = %d\n", G.supplyCount[r], 0);
+                    printf("G.supplyCount[r] = %d, expected = %d ", G.supplyCount[r], 0);
 #endif
-                    asserttrue(G.supplyCount[r] == 0, &globalFailFlag); // check if discard count is one
+                    asserttrue(G.supplyCount[r] == 0, &globalFailFlag, 1); // check if supply count is correct
                 }
                 for (r = 0; r < numPlayer; r++) {
 #if (NOISY_TEST == 1)
                     if (r != p)
-                        printf("G.handCount[r] = %d, expected = %d\n", G.handCount[r], 0);
+                        printf("G.handCount[r] = %d, expected = %d ", G.handCount[r], 0);
 #endif
                     if (r != p)
-                        asserttrue(G.handCount[r] == 0, &globalFailFlag); // check if all other players' hands are empty
+                        asserttrue(G.handCount[r] == 0, &globalFailFlag, 1); // check if all other players' hands are empty
 #if (NOISY_TEST == 1)
                     if (r != p)
-                        printf("G.deckCount[r] = %d, expected = %d\n", G.deckCount[r], 0);
+                        printf("G.deckCount[r] = %d, expected = %d ", G.deckCount[r], 0);
 #endif
                     if (r != p)
-                        asserttrue(G.deckCount[r] == 0, &globalFailFlag); // check if all other players' decks are empty
+                        asserttrue(G.deckCount[r] == 0, &globalFailFlag, 1); // check if all other players' decks are empty
 #if (NOISY_TEST == 1)
                     if (r != p)
-                        printf("G.discardCount[r] = %d, expected = %d\n", G.discardCount[r], 0);
+                        printf("G.discardCount[r] = %d, expected = %d ", G.discardCount[r], 0);
 #endif
                     if (r != p)
-                        asserttrue(G.discardCount[r] == 0, &globalFailFlag); // check if all other players' decks are empty
+                        asserttrue(G.discardCount[r] == 0, &globalFailFlag, 1); // check if all other players' discards are empty
                 }
 #if (NOISY_TEST == 1)
-                        printf("G.playedCardCount = %d, expected = %d\n", G.playedCardCount, 1);
+                        printf("G.playedCardCount = %d, expected = %d ", G.playedCardCount, 1);
 #endif
-                        asserttrue(G.playedCardCount == 1, &globalFailFlag); // check if discard count is one
+                        asserttrue(G.playedCardCount == 1, &globalFailFlag, 1); // check if played card count is correct
 #if (NOISY_TEST == 1)
-                        printf("G.playedCards[0] = %d, expected = %d\n", G.playedCards[0], adventurer);
+                        printf("G.playedCards[0] = %d, expected = %d ", G.playedCards[0], adventurer);
 #endif
-                        asserttrue(G.playedCards[0] == adventurer, &globalFailFlag); // check if discard count is one
+                        asserttrue(G.playedCards[0] == adventurer, &globalFailFlag, 1); // check if played card array contains adventurer
                     }
                   }
                 }
