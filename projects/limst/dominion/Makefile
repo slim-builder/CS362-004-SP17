@@ -94,6 +94,10 @@ unittestresults.out: dominion.o rngs.o interface.o unittest1.c unittest2.c unitt
 
 default: unittestresults.out
 
+randomtest: randomtestadventurer.c dominion.o rngs.o
+	gcc -o testAdventurerCard -g randomtestadventurer.c dominion.o rngs.o $(CFLAGS)
+	gcc -o testCouncilRoomCard -g randomtestcard1.c dominion.o rngs.o $(CFLAGS)
+
 clean:
-	rm -f *.o playdom.exe playdom test.exe test player player.exe testInit testInit.exe unittest1 unittest2 unittest3 unittest4 cardtest1 cardtest2 cardtest3 cardtest4 *.gcov *.gcda *.gcno *.so
+	rm -f *.o playdom.exe playdom test.exe test player player.exe testInit testInit.exe unittest1 unittest2 unittest3 unittest4 cardtest1 cardtest2 cardtest3 cardtest4 testAdventurerCard testCouncilRoomCard *.gcov *.gcda *.gcno *.so
 	rm -f unittestresults.out unittestsummary.out
