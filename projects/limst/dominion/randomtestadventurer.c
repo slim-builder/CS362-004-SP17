@@ -9,7 +9,7 @@
 
 #define DEBUG 0
 #define NOISY_TEST 1
-#define ITERATIONS 2000
+#define ITERATIONS 10000
 
 void asserttrue(int result, int *successes, int *failures) {
   if (result == 0)
@@ -23,6 +23,7 @@ void checkAdventurerCard(int hp, int p, struct gameState *post, int *successes, 
   memcpy (&pre, post, sizeof(struct gameState));
 
   int r;
+  int dummy = gold;
   int temphand[MAX_DECK];
     
   r = playAdventurer (hp, p, post, 0, temphand, 0, 0);

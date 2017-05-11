@@ -1,3 +1,13 @@
+Result for running random tests on Smithy card effect:
+randomtestcard2.c:
+Testing Smithy Card.
+RANDOM TESTS.
+20000 TESTS SUCCESSFUL
+0 TESTS FAILED
+File 'dominion.c'
+Lines executed:15.03% of 559
+Creating 'dominion.c.gcov'
+
         -:    0:Source:dominion.c
         -:    0:Graph:dominion.gcno
         -:    0:Data:dominion.gcda
