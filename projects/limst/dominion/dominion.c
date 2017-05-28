@@ -1231,7 +1231,8 @@ int playAdventurer(int handPos, int currentPlayer, struct gameState *state, int 
 	if (state->deckCount[currentPlayer] <1){//if the deck is empty we need to shuffle discard and add to deck
 	  shuffle(currentPlayer, state);
 	}
-	drawCard(currentPlayer, state);
+	if (drawCard(currentPlayer, state) < 0)
+	  break;
 	cardDrawn = state->hand[currentPlayer][state->handCount[currentPlayer]];//top card of hand is most recently drawn card.
 	if (cardDrawn == copper || cardDrawn == silver || cardDrawn == gold)
 	  drawntreasure++;
