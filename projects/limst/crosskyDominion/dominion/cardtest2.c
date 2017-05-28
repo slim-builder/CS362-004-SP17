@@ -37,7 +37,6 @@ int main() {
                , remodel, smithy, village, baron, great_hall};
     struct gameState G;
     // arrays of all coppers, silvers, and golds
-
     int estates[MAX_HAND];
     int duchies[MAX_HAND];
     int provinces[MAX_HAND];
@@ -80,6 +79,7 @@ int main() {
                     G.handCount[s] = 0;
                     G.discardCount[s] = 0;
                     G.deckCount[s] = 0;
+                    G.hand[s][MAX_HAND-1] = 5;
                 }
                 for (s = 0; s <= treasure_map; s++) // empty supply piles
                     G.supplyCount[s] = 0;

@@ -48,9 +48,6 @@ int main() {
     }
 
     int s;
-#if (NOISY_TEST == 1)
-    char cardname[256];
-#endif
     printf ("TESTING buyCard():\n");
 
     for (p = 0; p < numPlayer; p++) // test for each player
@@ -58,8 +55,7 @@ int main() {
         for (supplyPos = 0; supplyPos <= treasure_map; supplyPos++) // test for each card type
         {
 #if (NOISY_TEST == 1)
-                cardNumToName(supplyPos, cardname);
-                printf("Test player %d buying a %s card.\n", p, cardname);
+                printf("Test player %d buying a %d card.\n", p, supplyPos);
 #endif
                 memset(&G, 23, sizeof(struct gameState));   // clear the game state
                 r = initializeGame(numPlayer, k, seed, &G); // initialize a new game
