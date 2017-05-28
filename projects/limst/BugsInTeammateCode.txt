@@ -1,0 +1,81 @@
+﻿Bug Reports on Teammate Code:
+
+Bug #1
+
+Card Effect Under Test: Smithy
+
+Symptom: The player’s hand count is greater than the expected hand count by one.  The player’s deck count is less than the expected deck count by one.
+How It Was Found: The test code assigns known values to the player’s hand and deck counts before the Smithy card is played.  After the Smithy card effect function is executed, the test code checks if the player’s hand and deck counts match the expected values for those counts based on the expected Smithy card effect.  For example, if the test code initially sets the hand count to five and the deck count to three, then the expected hand count is eight and the expected deck count is zero after playing Smithy and the test code will check if the actual counts match the expected counts.
+
+Cause: A termination condition error in the for loop which should draw three cards causes the loop to draw four cards.
+
+Severity: High (because of incorrect Smithy card effect behavior but no program crash)
+
+Priority: Medium (because of low effort required to fix bug)
+
+Bug #2
+
+Card Effect Under Test: Adventurer
+
+Symptom: The playedCardCount value remains the same rather than being incremented by one.  The playedCards array is not updated to include the Adventurer card.  The player’s hand count is one higher than expected.  An Adventurer card is present in the player’s hand.
+How It Was Found: The test code sets up the player’s hand such that there is exactly one Adventurer card in the hand.  The test code assigns known values to the playedCardCount variable and the player’s hand count before the Adventurer card is played.  After the Adventurer card effect function is executed, the test code checks if an Adventurer card is present in the player’s hand.  The test code also checks if the playedCardcount is incremented by one and if the player’s hand count is as expected.
+
+Cause: The Adventurer card effect function fails to discard the Adventurer card from the player’s hand after the card has been played.
+
+Severity: High (because of missing discard card behavior but no program crash)
+
+Priority: Medium (because of low effort required to fix bug)
+
+Bug #3
+
+Card Effect Under Test: Adventurer
+
+Symptom: The number of Treasure cards in the player’s hand is sometimes one less than expected.
+How It Was Found: First, the test code initializes the player’s hand with zero Treasure cards.  Then the test code sets up the player’s deck and discard pile such that they contain combinations of Treasure cards of different types such as Copper, Silver, and Gold.  After the Adventurer card effect function is executed, the test code checks if the correct number of Treasure cards are present in the player’s hand.
+When the only Treasure cards available to draw from the deck and the discard pile are Copper cards, then the bug will occur.
+
+Cause: The Adventurer card effect function fails to treat the drawn Copper card as a drawn Treasure card while drawn Silver and Gold cards are both correctly treated as drawn Treasure cards.
+
+Severity: High (because of incorrect Adventurer card effect behavior but no program crash)
+
+Priority: Medium (because of low effort required to fix bug)
+
+Bug #4
+
+Card Effect Under Test: Adventurer
+
+Symptom: A large negative integer for the player’s hand count or a segmentation fault.
+How It Was Found: The test code sets up the player’s hand count to five before the Adventurer card is played.  After the Adventurer card effect function is executed, the test code checks if the player’s hand count is as expected, which should include four hand cards from before the Adventurer card was played, plus at most two Treasure cards.
+When there are less than two Treasure cards available to draw from the deck and the discard pile, then the bug will occur.
+
+Cause: The Adventurer card effect function fails to handle the case when there are less than two Treasure cards available to draw from the combination of the deck and discard pile.  The Adventurer code decrements the player’s hand count until two “Treasure cards” are found, even if hand count start to take on a negative value.  Since the Adventurer code relies on the hand count to check for Treasure cards, if the hand count is low enough (a large negative number), the code will try to access an invalid memory location which causes the segmentation fault.
+
+Severity: Critical (because of possible program crash due to segmentation fault)
+
+Priority: High (because of high effort required to fix bug)
+
+Bug #5
+
+Card Effect Under Test: Council Room
+
+Symptom: Each other player’s hand count was one less than expected and each of their deck counts was one more than expected.  Also, the player’s hand count was one greater than expected and the player’s deck count was one less than expected.
+How It Was Found: The test code sets up each player’s hand and deck counts to known values before the Council Room card is played.  After the Council Room card effect function is executed, the test code checks if each player’s hand and deck counts are as expected.
+
+Cause: The Council Room card effect function ends up having the player draw a fifth card instead of having each other player draw a single card.
+
+Severity: High (because of incorrect draw card behavior for every player but no program crash)
+
+Priority: Medium (because of low effort required to fix bug)
+
+Bug #6
+
+Card Effect Under Test: Sea Hag
+
+Symptom: Each other player’s deck count was three less than expected.
+How It Was Found: The test code sets up each other player’s deck count to a known value before the Sea Hag card is played.  After the Sea Hag card effect function is executed, the test code checks if each other player’s deck count is as expected.
+
+Cause: The Sea Hag card effect function decrements each other player’s deck count two more times than expected while failing to increment the deck count when the Curse card is placed on top of the deck.
+
+Severity: High (because of incorrect deck count for each other player but no program crash)
+
+Priority: Medium (because of low effort required to fix bug)
